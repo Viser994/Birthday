@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Mom! 🎉</title>
+
+    <!-- Google Font for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(45deg, purple, pink, cyan);
+            color: white;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            animation: backgroundShift 5s ease-in-out infinite;
+            /* Allow scrolling now */
+        }
+
+        @keyframes backgroundShift {
+            0% { background: linear-gradient(45deg, purple, pink, cyan); }
+            50% { background: linear-gradient(45deg, cyan, pink, purple); }
+            100% { background: linear-gradient(45deg, purple, pink, cyan); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #ff66b2;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            margin-top: 20px;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { color: #ff66b2; text-shadow: 2px 2px 8px rgba(255, 102, 178, 0.8); }
+            100% { color: #ffccff; text-shadow: 2px 2px 20px rgba(255, 204, 255, 0.8); }
+        }
+
+        h2 {
+            color: white;
+            font-size: 1.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 10px 0;
+        }
+
+        .scrolling-text {
+            font-size: 2.5em;
+            color: yellow;
+            white-space: nowrap;
+            animation: scroll 10s linear infinite;
+            padding: 10px;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .birthday-wish {
+            font-size: 1.5em;
+            color: #99ff99;
+            margin: 20px 0;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            background-color: #ff66b2;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 80%;
+            margin: auto;
+        }
+
+        iframe {
+            margin-top: 30px;
+            border-radius: 10px;
+            max-width: 100%;
+            display: none; /* Initially hide the iframe */
+        }
+
+        .play-button {
+            background-color: #ff66b2;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .play-button:hover {
+            background-color: #ff3385;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Flashy Birthday Banner -->
+        <h1>🎂✨ Happy Birthday, Mom! ✨🎂</h1>
+
+        <!-- Scrolling Celebration Text -->
+        <div class="scrolling-text">
+            🎊 Wishing You a Day as Special as You Are! 🎊
+        </div>
+
+        <!-- Heartfelt Birthday Message -->
+        <h2>💖 Dear Mom, 💖</h2>
+        <p style="font-size: 1.4em; max-width: 80%; margin: auto;">
+            On this special day, I want to remind you that you are not just my mother, 
+            but my greatest inspiration. 🌸  
+            You have taught me kindness, strength, and the beauty of the world, 
+            just like microbes shape life itself! 🔬  
+            May your day be filled with as much love and joy as you bring to everyone around you. 💜
+        </p>
+
+        <!-- Microbiology Themed Message -->
+        <h2 style="color: lime;">🔬 A Microbiology Birthday Wish 🔬</h2>
+        <p style="font-size: 1.4em;">
+            Just like a perfect culture in a Petri dish,  
+            your love has grown in the most nurturing way. 💖  
+            May your happiness multiply like bacteria in ideal conditions,  
+            and may your life be filled with good health, love, and endless discoveries! 🧫✨
+        </p>
+
+        <!-- Button to Play Video -->
+        <h2>🎥 Special Video for You, Mom! 🎥</h2>
+        <button class="play-button" onclick="playVideo()">Play Video</button>
+
+        <!-- YouTube Video Embed (Hidden initially) -->
+        <iframe id="videoIframe" width="560" height="315" src="https://www.youtube.com/embed/XeJtg2hFnhs?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+        <!-- Final Wish -->
+        <h2 class="birthday-wish">🌟 Make a Wish, Mom! 🌟</h2>
+        <p style="font-size: 1.5em;">
+            May all your dreams come true, and may your birthday be as amazing as you are! 🎁✨
+        </p>
+
+        <h1 style="color: gold;">🎉 HAPPY BIRTHDAY! 🎉</h1>
+
+    </div>
+
+    <script>
+        function playVideo() {
+            var iframe = document.getElementById("videoIframe");
+            iframe.style.display = "block";  // Show the iframe when the button is clicked
+        }
+    </script>
+
+</body>
+</html>
