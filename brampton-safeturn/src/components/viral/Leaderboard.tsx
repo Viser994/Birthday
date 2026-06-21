@@ -38,23 +38,23 @@ export default function Leaderboard({ locations }: LeaderboardProps) {
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-green-500" />
-          <h3 className="font-bold text-gray-900">Safest Neighbourhoods</h3>
+      <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-sm">
+        <div className="mb-5 flex items-center gap-2">
+          <Trophy className="h-5 w-5 text-emerald-400" />
+          <h3 className="font-bold text-white">Safest Neighbourhoods</h3>
         </div>
         <div className="space-y-3">
           {safest.map((item, i) => (
             <div key={item.name} className="flex items-center gap-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-700">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-bold text-emerald-400">
                 {i + 1}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium">{item.name}</p>
-                <p className="text-xs text-gray-500">{item.reportCount} reports</p>
+                <p className="text-sm font-medium text-slate-200">{item.name}</p>
+                <p className="text-xs text-slate-500">{item.reportCount} reports</p>
               </div>
               <span
-                className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
+                className="rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
                 style={{ backgroundColor: getRiskColor("low") }}
               >
                 {item.avgScore}
@@ -64,22 +64,22 @@ export default function Leaderboard({ locations }: LeaderboardProps) {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <h3 className="font-bold text-gray-900">Most Reported Areas</h3>
+      <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-sm">
+        <div className="mb-5 flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-rose-400" />
+          <h3 className="font-bold text-white">Most Reported Areas</h3>
         </div>
         <div className="space-y-3">
           {mostReported.map((item, i) => (
             <div key={item.name} className="flex items-center gap-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-500/20 text-xs font-bold text-rose-400">
                 {i + 1}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium">{item.name}</p>
-                <p className="text-xs text-gray-500">Avg score: {item.avgScore}</p>
+                <p className="text-sm font-medium text-slate-200">{item.name}</p>
+                <p className="text-xs text-slate-500">Avg score: {item.avgScore}</p>
               </div>
-              <span className="text-sm font-bold text-red-600">
+              <span className="text-sm font-bold text-rose-400">
                 {item.reportCount}
               </span>
             </div>

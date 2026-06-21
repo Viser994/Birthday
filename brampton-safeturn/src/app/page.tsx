@@ -5,14 +5,14 @@ import dynamic from "next/dynamic";
 import { useReports } from "@/hooks/useReports";
 import { clusterReports } from "@/lib/locations";
 import Link from "next/link";
-import { AlertTriangle, TrendingUp } from "lucide-react";
+import { AlertTriangle, TrendingUp, MapPin, Activity } from "lucide-react";
 import TopDangerSpots from "@/components/viral/TopDangerSpots";
 
 const SafetyMap = dynamic(() => import("@/components/map/SafetyMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center bg-gray-100">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+    <div className="flex h-full items-center justify-center bg-slate-900">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-rose-500 border-t-transparent" />
     </div>
   ),
 });
@@ -25,58 +25,76 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="relative flex-1 min-h-[calc(100vh-3.5rem)]">
-        {!loading && (
-          <SafetyMap locations={locations} showHeatmap />
-        )}
+      <div className="relative z-0 min-h-[calc(100dvh-4rem)] flex-1 overflow-hidden sm:min-h-[calc(100dvh-4rem)]">
+        {!loading && <SafetyMap locations={locations} showHeatmap />}
         {loading && (
-          <div className="flex h-full items-center justify-center bg-gray-100">
+          <div className="flex h-full items-center justify-center bg-slate-900">
             <div className="text-center">
-              <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
-              <p className="text-sm text-gray-500">Loading safety data...</p>
+              <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-rose-500 border-t-transparent" />
+              <p className="text-sm text-slate-400">Loading safety data...</p>
             </div>
           </div>
         )}
 
-        <div className="absolute left-4 top-16 z-10 max-w-xs rounded-xl bg-white/95 p-4 shadow-lg backdrop-blur-sm sm:top-4">
-          <h1 className="mb-1 text-lg font-bold text-gray-900">
-            Brampton SafeTurn
-          </h1>
-          <p className="mb-3 text-xs text-gray-500">
-            Community-powered road safety intelligence
-          </p>
-          <div className="flex gap-3 text-center">
-            <div>
-              <p className="text-2xl font-bold text-red-500">{highRiskCount}</p>
-              <p className="text-xs text-gray-500">High Risk</p>
+        {/* Floating stats panel */}
+        <div className="pointer-events-none absolute left-4 right-4 top-4 z-10 sm:left-6 sm:right-auto sm:top-6 sm:max-w-sm">
+          <div className="pointer-events-auto rounded-2xl border border-white/10 bg-slate-900/85 p-5 shadow-2xl backdrop-blur-xl">
+            <div className="mb-4 flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-500">
+                <MapPin className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">Road Safety Map</h1>
+                <p className="text-xs text-slate-400">
+                  Live community reports across Brampton
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{locations.length}</p>
-              <p className="text-xs text-gray-500">Hotspots</p>
+
+            <div className="mb-4 grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-rose-500/10 p-3 text-center">
+                <p className="text-2xl font-bold text-rose-400">{highRiskCount}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                  High Risk
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/5 p-3 text-center">
+                <p className="text-2xl font-bold text-white">{locations.length}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                  Hotspots
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/5 p-3 text-center">
+                <p className="text-2xl font-bold text-white">{reports.length}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+                  Reports
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-800">{reports.length}</p>
-              <p className="text-xs text-gray-500">Reports</p>
-            </div>
+
+            <Link
+              href="/report"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition-all hover:shadow-rose-500/40"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              Report a Danger Spot
+            </Link>
           </div>
-          <Link
-            href="/report"
-            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
-          >
-            <AlertTriangle className="h-4 w-4" />
-            Report a Danger Spot
-          </Link>
         </div>
       </div>
 
       {!loading && locations.length > 0 && (
-        <section className="border-t bg-white px-4 py-8">
+        <section className="border-t border-white/10 bg-slate-950 px-4 py-10 sm:px-6">
           <div className="mx-auto max-w-7xl">
+            <div className="mb-6 flex items-center gap-2">
+              <Activity className="h-5 w-5 text-rose-400" />
+              <h2 className="text-lg font-bold text-white">This Week&apos;s Hotspots</h2>
+            </div>
             <TopDangerSpots locations={locations} limit={3} />
-            <div className="mt-4 text-center">
+            <div className="mt-6 text-center">
               <Link
                 href="/insights"
-                className="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-700"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <TrendingUp className="h-4 w-4" />
                 View all insights

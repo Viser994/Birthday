@@ -5,17 +5,20 @@ import { ReportType, REPORT_TYPE_LABELS } from "@/types";
 import { submitReport } from "@/lib/reports";
 import { recordReportSubmission, getStreakData, StreakData } from "@/lib/streak";
 import { BRAMPTON_CENTER } from "@/lib/constants";
-import { MapPin, Camera, Send, Flame } from "lucide-react";
+import { MapPin, Camera, Send, Flame, CheckCircle2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const SafetyMap = dynamic(() => import("@/components/map/SafetyMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100">
-      <p className="text-sm text-gray-500">Loading map...</p>
+    <div className="flex h-48 items-center justify-center rounded-xl bg-slate-800">
+      <p className="text-sm text-slate-400">Loading map...</p>
     </div>
   ),
 });
+
+const inputClass =
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/50";
 
 interface ReportFormProps {
   initialLat?: number;
@@ -88,14 +91,14 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
 
   if (success) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
-        <div className="mb-4 text-4xl">✅</div>
-        <h2 className="mb-2 text-xl font-bold text-green-800">Report Submitted!</h2>
-        <p className="mb-4 text-green-700">
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center">
+        <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
+        <h2 className="mb-2 text-xl font-bold text-white">Report Submitted!</h2>
+        <p className="mb-6 text-slate-300">
           Thank you for helping make Brampton roads safer.
         </p>
         {streak && (
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-orange-700">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-5 py-2.5 text-orange-300">
             <Flame className="h-5 w-5" />
             <span className="font-semibold">
               {streak.currentStreak}-day streak · {streak.totalPoints} points
@@ -104,7 +107,7 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
         )}
         <button
           onClick={() => setSuccess(false)}
-          className="rounded-lg bg-green-600 px-6 py-2 text-white hover:bg-green-700"
+          className="rounded-xl bg-emerald-500 px-6 py-2.5 font-medium text-white hover:bg-emerald-600"
         >
           Submit Another Report
         </button>
@@ -115,7 +118,7 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {streak && streak.currentStreak > 0 && (
-        <div className="flex items-center gap-2 rounded-lg bg-orange-50 px-4 py-3 text-orange-700">
+        <div className="flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-orange-300">
           <Flame className="h-5 w-5" />
           <span className="text-sm font-medium">
             {streak.currentStreak}-day report streak · {streak.totalPoints} points
@@ -124,16 +127,16 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
       )}
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label className="mb-1.5 block text-sm font-medium text-slate-300">
           Report Type
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as ReportType)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+          className={inputClass}
         >
           {Object.entries(REPORT_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
+            <option key={value} value={value} className="bg-slate-900">
               {label}
             </option>
           ))}
@@ -141,7 +144,7 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label className="mb-1.5 block text-sm font-medium text-slate-300">
           Location Name (optional)
         </label>
         <input
@@ -149,16 +152,16 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
           value={locationName}
           onChange={(e) => setLocationName(e.target.value)}
           placeholder="e.g. Steeles Ave & Hurontario St"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-          <MapPin className="h-4 w-4" />
+        <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-300">
+          <MapPin className="h-4 w-4 text-rose-400" />
           Location (click map to set)
         </label>
-        <div className="h-48 overflow-hidden rounded-lg border">
+        <div className="h-52 overflow-hidden rounded-xl border border-white/10">
           <SafetyMap
             locations={[]}
             onMapClick={handleMapClick}
@@ -167,13 +170,13 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
             showHeatmap={false}
           />
         </div>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1.5 text-xs text-slate-500">
           {lat.toFixed(5)}, {lng.toFixed(5)}
         </p>
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">
+        <label className="mb-1.5 block text-sm font-medium text-slate-300">
           Description (optional)
         </label>
         <textarea
@@ -181,12 +184,12 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
           placeholder="Describe what happened..."
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-gray-700">
+        <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-300">
           <Camera className="h-4 w-4" />
           Photo (optional)
         </label>
@@ -194,18 +197,20 @@ export default function ReportForm({ initialLat, initialLng }: ReportFormProps) 
           type="file"
           accept="image/*"
           onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-          className="w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-red-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-red-600 hover:file:bg-red-100"
+          className="w-full text-sm text-slate-400 file:mr-4 file:rounded-xl file:border-0 file:bg-rose-500/20 file:px-4 file:py-2 file:text-sm file:font-medium file:text-rose-300 hover:file:bg-rose-500/30"
         />
       </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
+        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {error}
+        </p>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-500 px-6 py-3 font-medium text-white hover:bg-red-600 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-rose-500/25 disabled:opacity-50"
       >
         <Send className="h-4 w-4" />
         {submitting ? "Submitting..." : "Submit Report"}

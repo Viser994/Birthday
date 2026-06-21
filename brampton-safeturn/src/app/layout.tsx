@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/layout/Nav";
+import GoogleMapsProvider from "@/components/providers/GoogleMapsProvider";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geist.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-gray-50 font-sans antialiased">
-        <Nav />
-        <main className="flex flex-1 flex-col">{children}</main>
+      <body className="flex min-h-full flex-col bg-slate-950 font-sans text-slate-100 antialiased">
+        <GoogleMapsProvider>
+          <Nav />
+          <main className="relative flex flex-1 flex-col pb-16 sm:pb-0">
+            {children}
+          </main>
+        </GoogleMapsProvider>
       </body>
     </html>
   );

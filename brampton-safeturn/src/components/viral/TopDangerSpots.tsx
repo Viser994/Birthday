@@ -19,9 +19,9 @@ export default function TopDangerSpots({
 
   return (
     <section>
-      <div className="mb-4 flex items-center gap-2">
-        <AlertTriangle className="h-5 w-5 text-red-500" />
-        <h2 className="text-lg font-bold text-gray-900">
+      <div className="mb-5 flex items-center gap-2">
+        <AlertTriangle className="h-5 w-5 text-rose-400" />
+        <h2 className="text-lg font-bold text-white">
           Top {limit} Dangerous Spots in Brampton This Week
         </h2>
       </div>
