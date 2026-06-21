@@ -1,0 +1,11 @@
+{
+  "name": "brampton-safeturn-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix brampton-safeturn",
+    "start:local": "npm run start:local --prefix brampton-safeturn",
+    "doctor": "npm run doctor --prefix brampton-safeturn",
+    "build": "npm run build --prefix brampton-safeturn",
+    "install:app": "npm install --prefix brampton-safeturn"
+  }
+}
