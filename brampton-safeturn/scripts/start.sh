@@ -25,12 +25,27 @@ fi
 if [ ! -f .env.local ]; then
   echo "Creating .env.local from template..."
   cp .env.example .env.local
-  echo "  -> Edit .env.local to add your API keys (optional for demo mode)"
+fi
+
+PORT=3000
+if command -v ss >/dev/null 2>&1; then
+  while ss -tln 2>/dev/null | grep -q ":${PORT} "; do
+    echo "Port ${PORT} is busy, trying next..."
+    PORT=$((PORT + 1))
+    if [ "$PORT" -gt 3010 ]; then
+      echo "ERROR: No free port between 3000-3010"
+      exit 1
+    fi
+  done
 fi
 
 echo ""
-echo "Starting server at http://localhost:3000"
-echo "Press Ctrl+C to stop"
+echo "============================================"
+echo "  OPEN THIS IN YOUR BROWSER:"
+echo "  http://localhost:${PORT}"
+echo "============================================"
+echo ""
+echo "Keep this terminal open. Press Ctrl+C to stop."
 echo ""
 
-npm run dev
+npm run dev -- --port "${PORT}"
