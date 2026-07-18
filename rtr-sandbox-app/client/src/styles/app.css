@@ -623,6 +623,13 @@ select {
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.82rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.summary-field dd.mono span,
+.mono span {
+  min-width: 0;
 }
 
 .copy-btn {
