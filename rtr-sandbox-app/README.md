@@ -55,6 +55,8 @@ Serves the built UI from the Express server on `PORT` (default `8787`).
 
 - **Express proxy** (`server/`) holds credentials, obtains OAuth tokens, and calls `https://api.payments.ca/rtr-sandbox/*` with `application/vnd.api.v1+json`.
 - **React UI** (`client/`) lists scenarios, lets you edit request fields, and shows request/response side-by-side.
+- **Response reader** (`client/src/lib/responseReader.js`) decodes ISO 20022 payloads into plain-language cards:
+  payment status (ACSP/RJCT), heartbeat ack, interest/balance tables, reject reasons, and OAuth token details. Raw JSON remains available behind toggles.
 - Official samples referenced: [paymentscanada/api-toolkit](https://github.com/paymentscanada/api-toolkit).
 
 ## Notes
