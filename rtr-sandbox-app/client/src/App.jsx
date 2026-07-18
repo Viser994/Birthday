@@ -1,25 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import CredentialsPanel from "./components/CredentialsPanel.jsx";
 import ScenarioNav from "./components/ScenarioNav.jsx";
 import ScenarioWorkspace from "./components/ScenarioWorkspace.jsx";
 import { fetchHealth, fetchScenarios } from "./lib/api.js";
 
 export default function App() {
-  const [mode, setMode] = useState("demo");
+  const [health, setHealth] = useState(null);
   const [scenarios, setScenarios] = useState([]);
   const [activeId, setActiveId] = useState("");
   const [loading, setLoading] = useState(true);
   const [bootError, setBootError] = useState("");
 
+  const refreshHealth = useCallback(async () => {
+    const next = await fetchHealth();
+    setHealth(next);
+    return next;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     async function boot() {
       try {
-        const [health, catalog] = await Promise.all([
+        const [nextHealth, catalog] = await Promise.all([
           fetchHealth(),
           fetchScenarios(),
         ]);
         if (cancelled) return;
-        setMode(health.mode || catalog.mode || "demo");
+        setHealth(nextHealth);
         setScenarios(catalog.scenarios || []);
         setActiveId(catalog.scenarios?.[0]?.id || "");
       } catch (error) {
@@ -39,6 +46,7 @@ export default function App() {
     };
   }, []);
 
+  const mode = health?.mode || "demo";
   const activeScenario = useMemo(
     () => scenarios.find((s) => s.id === activeId),
     [scenarios, activeId]
@@ -82,14 +90,22 @@ export default function App() {
       )}
 
       {!loading && !bootError && (
-        <div className="layout">
-          <ScenarioNav
-            scenarios={scenarios}
-            activeId={activeId}
-            onSelect={setActiveId}
-          />
-          <ScenarioWorkspace scenario={activeScenario} mode={mode} />
-        </div>
+        <>
+          <CredentialsPanel health={health} onUpdated={refreshHealth} />
+          <div className="layout" style={{ marginTop: "1.25rem" }}>
+            <ScenarioNav
+              scenarios={scenarios}
+              activeId={activeId}
+              onSelect={setActiveId}
+            />
+            <ScenarioWorkspace
+              scenario={activeScenario}
+              mode={mode}
+              productOk={health?.authMeta?.productOk !== false || mode === "demo"}
+              productWarning={health?.authMeta?.warning}
+            />
+          </div>
+        </>
       )}
     </div>
   );

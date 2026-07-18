@@ -10,6 +10,9 @@ import {
 const API_BASE_URL = process.env.API_BASE_URL || "https://api.payments.ca";
 const RTR_BASE_PATH = process.env.RTR_BASE_PATH || "/rtr-sandbox";
 const CONTENT_TYPE = "application/vnd.api.v1+json";
+const REQUIRED_PRODUCT = "rtr-sandbox";
+
+let lastAuthMeta = null;
 
 export function hasLiveCredentials() {
   if (process.env.FORCE_DEMO_MODE === "true") return false;
@@ -17,6 +20,27 @@ export function hasLiveCredentials() {
     process.env.CONSUMER_KEY &&
       process.env.CONSUMER_SECRET &&
       process.env.CONSUMER_KEY !== "your_consumer_key_here"
+  );
+}
+
+export function setCredentials({ consumerKey, consumerSecret }) {
+  process.env.CONSUMER_KEY = consumerKey?.trim() || "";
+  process.env.CONSUMER_SECRET = consumerSecret?.trim() || "";
+  lastAuthMeta = null;
+  return {
+    mode: hasLiveCredentials() ? "live" : "demo",
+    hasCredentials: hasLiveCredentials(),
+  };
+}
+
+export function getAuthMeta() {
+  return lastAuthMeta;
+}
+
+function productMatchesRtr(products = []) {
+  const list = Array.isArray(products) ? products : [products].filter(Boolean);
+  return list.some((p) =>
+    String(p).toLowerCase().includes(REQUIRED_PRODUCT)
   );
 }
 
@@ -49,6 +73,13 @@ async function parseResponse(response) {
 
 export async function getAccessToken() {
   if (!hasLiveCredentials()) {
+    lastAuthMeta = {
+      mode: "demo",
+      ok: true,
+      products: ["demo"],
+      productOk: true,
+      requiredProductHint: "rtr-sandbox-product",
+    };
     return {
       ok: true,
       status: 200,
@@ -56,6 +87,7 @@ export async function getAccessToken() {
       headers: {},
       data: demoToken(),
       mode: "demo",
+      authMeta: lastAuthMeta,
     };
   }
 
@@ -78,7 +110,26 @@ export async function getAccessToken() {
   });
 
   const parsed = await parseResponse(response);
-  return { ...parsed, mode: "live" };
+  const products =
+    parsed.data?.api_product_list_json ||
+    (parsed.data?.api_product_list
+      ? [String(parsed.data.api_product_list).replace(/^\[|\]$/g, "")]
+      : []);
+  const productOk = productMatchesRtr(products);
+  lastAuthMeta = {
+    mode: "live",
+    ok: Boolean(parsed.ok && parsed.data?.access_token),
+    products,
+    productOk,
+    requiredProductHint: "rtr-sandbox-product",
+    applicationName: parsed.data?.application_name,
+    developerEmail: parsed.data?.["developer.email"],
+    warning: productOk
+      ? null
+      : `Token is valid for [${products.join(", ") || "unknown"}], but RTR endpoints require an app created with product rtr-sandbox-product. Create a new app in My Apps with that product, then paste the new Consumer Key/Secret.`,
+  };
+
+  return { ...parsed, mode: "live", authMeta: lastAuthMeta };
 }
 
 async function callRtr(path, payload, { token, expectReject = false } = {}) {

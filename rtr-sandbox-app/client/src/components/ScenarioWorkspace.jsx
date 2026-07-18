@@ -6,7 +6,12 @@ function defaultsFromFields(fields = []) {
   return Object.fromEntries(fields.map((f) => [f.key, f.default ?? ""]));
 }
 
-export default function ScenarioWorkspace({ scenario, mode }) {
+export default function ScenarioWorkspace({
+  scenario,
+  mode,
+  productOk = true,
+  productWarning = "",
+}) {
   const [form, setForm] = useState(() => defaultsFromFields(scenario?.formFields));
   const [loading, setLoading] = useState(false);
   const [run, setRun] = useState(null);
@@ -71,9 +76,16 @@ export default function ScenarioWorkspace({ scenario, mode }) {
 
       {mode === "demo" && (
         <p className="hint">
-          Running in demo mode with stubbed ISO 20022-shaped responses. Add your
-          Developer Portal <code>CONSUMER_KEY</code> / <code>CONSUMER_SECRET</code>{" "}
-          to <code>.env</code> and restart for live sandbox calls.
+          Running in demo mode with stubbed ISO 20022-shaped responses. Paste
+          Consumer Key / Secret above (product must be{" "}
+          <code>rtr-sandbox-product</code>) for live sandbox calls.
+        </p>
+      )}
+
+      {mode === "live" && !productOk && (
+        <p className="toast">
+          {productWarning ||
+            "Credentials authenticate, but the app product is not RTR sandbox. RTR scenario calls will return 401 until you use an rtr-sandbox-product app."}
         </p>
       )}
 

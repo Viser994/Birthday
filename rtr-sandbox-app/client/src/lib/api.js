@@ -8,6 +8,19 @@ export async function fetchScenarios() {
   return res.json();
 }
 
+export async function saveCredentials({ consumerKey, consumerSecret }) {
+  const res = await fetch("/api/credentials", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ consumerKey, consumerSecret }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to save credentials (${res.status})`);
+  }
+  return data;
+}
+
 export async function runScenario(scenarioId, form = {}) {
   const res = await fetch(`/api/run/${scenarioId}`, {
     method: "POST",

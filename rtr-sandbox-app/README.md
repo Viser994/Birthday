@@ -19,8 +19,12 @@ Covers every scenario from Payments Canada’s public Postman collection and Ope
 ## Prerequisites
 
 1. Register on the [Developer Portal](https://developer.payments.ca/).
-2. Create an app with product **`rtr-sandbox-product`**.
+2. Create an app with product **`rtr-sandbox-product`** (required for `/rtr-sandbox/*`).
 3. Copy the **Consumer Key** and **Consumer Secret**.
+
+> Note: An app created under **`payments-rail-sandbox`** can obtain an OAuth token,
+> but RTR calls return `401 Invalid token. Please generate token for correct API Application.`
+> Create a separate app for the RTR sandbox product.
 
 ## Quick start
 
