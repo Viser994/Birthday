@@ -57,6 +57,9 @@ Serves the built UI from the Express server on `PORT` (default `8787`).
 - **React UI** (`client/`) lists scenarios, lets you edit request fields, and shows request/response side-by-side.
 - **Response reader** (`client/src/lib/responseReader.js`) decodes ISO 20022 payloads into plain-language cards:
   payment status (ACSP/RJCT), heartbeat ack, interest/balance tables, reject reasons, and OAuth token details. Raw JSON remains available behind toggles.
+- **Guided happy path** runs token → heartbeat → send payment → status enquiry in order.
+- **Session memory** keeps completed steps, latest payment UETR/IDs, and an activity timeline in `localStorage`, with one-click “Check this payment’s status”.
+- **Status glossary** explains ACSP, RJCT, UETR, heartbeat, and common reject codes.
 - Official samples referenced: [paymentscanada/api-toolkit](https://github.com/paymentscanada/api-toolkit).
 
 ## Notes
