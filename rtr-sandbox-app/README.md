@@ -62,6 +62,11 @@ Serves the built UI from the Express server on `PORT` (default `8787`).
 - **Status glossary** explains ACSP, RJCT, UETR, heartbeat, and common reject codes.
 - Official samples referenced: [paymentscanada/api-toolkit](https://github.com/paymentscanada/api-toolkit).
 
+## Client demo video
+
+A ~58s captioned walkthrough is in [`demo/output/rtr-rail-lab-client-demo.mp4`](demo/output/rtr-rail-lab-client-demo.mp4).  
+See [`demo/README.md`](demo/README.md) for posters and how to regenerate it.
+
 ## Notes
 
 - Sandbox tokens expire in about **5 minutes**; each run fetches a fresh token in live mode.
