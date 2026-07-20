@@ -69,6 +69,8 @@ Share these with the team implementing REST clients:
 - **Full headers / request / response contract:** [`docs/RTR-REST-API-CONTRACT.md`](docs/RTR-REST-API-CONTRACT.md)
 - **One-page quick reference:** [`docs/RTR-API-QUICK-REFERENCE.md`](docs/RTR-API-QUICK-REFERENCE.md)
 - **Live sanitized examples (JSON):** [`docs/api-examples/rtr-sandbox-live-examples.json`](docs/api-examples/rtr-sandbox-live-examples.json)
+- **Traceability to Payments Canada guidelines:** [`docs/RTR-TRACEABILITY-MATRIX.md`](docs/RTR-TRACEABILITY-MATRIX.md)
+- **Traceability CSV (for Excel/Jira import):** [`docs/api-examples/rtr-traceability-matrix.csv`](docs/api-examples/rtr-traceability-matrix.csv)
 
 ## Client demo video
 
