@@ -37,14 +37,14 @@ cd ping-aic-saas
 mvn spring-boot:run
 ```
 
-Open: **http://localhost:8088**
+Open: **http://localhost:8090**
 
 ### Step 3 — Provision (admin)
 
 UI panel **Provision** or:
 
 ```bash
-curl -s -X POST http://localhost:8088/api/provision \
+curl -s -X POST http://localhost:8090/api/provision \
   -H 'Content-Type: application/json' \
   -d '{
     "username":"alex.rivera",
@@ -64,7 +64,7 @@ curl -s -X POST http://localhost:8088/api/provision \
 
 ```bash
 # start
-curl -s -X POST http://localhost:8088/api/register/start \
+curl -s -X POST http://localhost:8090/api/register/start \
   -H 'Content-Type: application/json' \
   -d '{
     "username":"jordan.lee",
@@ -74,7 +74,7 @@ curl -s -X POST http://localhost:8088/api/register/start \
   }' | jq
 
 # verify (paste challengeId + demoOtp from start response)
-curl -s -X POST http://localhost:8088/api/register/verify \
+curl -s -X POST http://localhost:8090/api/register/verify \
   -H 'Content-Type: application/json' \
   -d '{"challengeId":"...","otpCode":"123456"}' | jq
 ```
@@ -84,15 +84,15 @@ curl -s -X POST http://localhost:8088/api/register/verify \
 ### Step 5 — Authenticate (passwordless)
 
 ```bash
-curl -s -X POST http://localhost:8088/api/login/start \
+curl -s -X POST http://localhost:8090/api/login/start \
   -H 'Content-Type: application/json' \
   -d '{"email":"jordan.lee@example.com"}' | jq
 
-curl -s -X POST http://localhost:8088/api/login/verify \
+curl -s -X POST http://localhost:8090/api/login/verify \
   -H 'Content-Type: application/json' \
   -d '{"challengeId":"...","otpCode":"123456"}' | jq
 
-curl -s http://localhost:8088/api/session/me \
+curl -s http://localhost:8090/api/session/me \
   -H "Authorization: Bearer <tokenId>"
 ```
 

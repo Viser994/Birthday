@@ -55,7 +55,7 @@ public class PingAicProperties {
   public static class Lab {
     private String appName = "Ping AIC SaaS";
     private int otpTtlSeconds = 300;
-    private String magicLinkBaseUrl = "http://localhost:8088";
+    private String magicLinkBaseUrl = "http://localhost:8090";
     public String getAppName() { return appName; }
     public void setAppName(String appName) { this.appName = appName; }
     public int getOtpTtlSeconds() { return otpTtlSeconds; }
