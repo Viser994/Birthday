@@ -62,6 +62,14 @@ Serves the built UI from the Express server on `PORT` (default `8787`).
 - **Status glossary** explains ACSP, RJCT, UETR, heartbeat, and common reject codes.
 - Official samples referenced: [paymentscanada/api-toolkit](https://github.com/paymentscanada/api-toolkit).
 
+## REST API contract (for application developers)
+
+Share these with the team implementing REST clients:
+
+- **Full headers / request / response contract:** [`docs/RTR-REST-API-CONTRACT.md`](docs/RTR-REST-API-CONTRACT.md)
+- **One-page quick reference:** [`docs/RTR-API-QUICK-REFERENCE.md`](docs/RTR-API-QUICK-REFERENCE.md)
+- **Live sanitized examples (JSON):** [`docs/api-examples/rtr-sandbox-live-examples.json`](docs/api-examples/rtr-sandbox-live-examples.json)
+
 ## Client demo video
 
 A ~58s captioned walkthrough is in [`demo/output/rtr-rail-lab-client-demo.mp4`](demo/output/rtr-rail-lab-client-demo.mp4).  
