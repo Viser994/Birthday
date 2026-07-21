@@ -1,0 +1,739 @@
+Payments Canada RTR Sandbox — REST API Contract
+
+Share this with the application development team for REST integration.
+
+Base URL (sandbox): https://api.payments.ca
+RTR path prefix: /rtr-sandbox
+Portal product required: rtr-sandbox-product
+Spec style: ISO 20022 JSON (Payments Canada sandbox mapping)
+Official portal: https://developer.payments.ca/rtr-sandbox-api/apis
+
+  Captured from live sandbox calls on 2026-07-20. Sandbox responses are
+  stubbed test data.
+
+------------------------------------------------------------------------
+
+0) Integration sequence (recommended)
+
+    1. POST /accesstoken                         → Bearer token
+    2. POST /rtr-sandbox/inbound-heartbeat       → health check
+    3. POST /rtr-sandbox/payments                → send pacs.008
+    4. POST /rtr-sandbox/payments/status         → enquire pacs.028
+    5. POST /rtr-sandbox/interest-report         → optional C&S report
+    6. POST /rtr-sandbox/payment-capacity-balance-report → optional balance
+
+------------------------------------------------------------------------
+
+1) Common conventions
+
+Content type
+
+  --------------------------------------------------------------------------------------------
+  Direction               Header                  Value
+  ----------------------- ----------------------- --------------------------------------------
+  Request (RTR APIs)      Content-Type            application/vnd.api.v1+json
+
+  Request (RTR APIs)      Accept                  application/vnd.api.v1+json
+
+  Request (token)         Content-Type            application/x-www-form-urlencoded
+
+  Response (RTR APIs)     Content-Type            application/vnd.api.v1+json; charset=utf-8
+
+  Response (token)        Content-Type            application/json
+  --------------------------------------------------------------------------------------------
+
+Common RTR request headers
+
+  --------------------------------------------------------------------------------------------
+  Header            Required          Description       Example
+  ----------------- ----------------- ----------------- --------------------------------------
+  Authorization     Yes               Bearer access     Bearer <ACCESS_TOKEN>
+                                      token             
+
+  Content-Type      Yes               RTR media type    application/vnd.api.v1+json
+
+  Accept            Recommended       RTR media type    application/vnd.api.v1+json
+
+  x-uetr            Recommended       UUID for payment  899860fa-1b98-45df-b8aa-c56d8df0f047
+                                      tracking          
+                                      (pacs.008 /       
+                                      pacs.028)         
+
+  traceability-id   Recommended       UUID for          e23d32eb-c7f2-4836-a314-557efe95a525
+                                      end-to-end        
+                                      tracing           
+
+  x-jws-signature   Spec says         JWS of payload;   <JWS>
+                    required          sandbox often     
+                                      accepts without   
+                                      it                
+  --------------------------------------------------------------------------------------------
+
+Typical HTTP statuses
+
+  -----------------------------------------------------------------------
+  Status                              Meaning
+  ----------------------------------- -----------------------------------
+  200                                 Business response returned (may
+                                      still be reject via admi.002)
+
+  400                                 Bad request / validation
+
+  401                                 Missing/invalid token, or wrong API
+                                      product on app
+
+  403                                 Forbidden
+
+  429                                 Too many requests
+
+  500 / 503                           Server / unavailable
+  -----------------------------------------------------------------------
+
+Important product note
+
+Token must be issued for an app with product rtr-sandbox-product.
+If the app is payments-rail-sandbox, token works but RTR calls return:
+
+    {
+      "code": "invalid_token",
+      "message": "Invalid token. Please generate token for correct API Application."
+    }
+
+------------------------------------------------------------------------
+
+2) Generate Access Token
+
+Endpoint
+
+POST https://api.payments.ca/accesstoken
+
+Headers
+
+    Authorization: Basic <BASE64(CONSUMER_KEY:CONSUMER_SECRET)>
+    Content-Type: application/x-www-form-urlencoded
+
+Request body (form)
+
+    grant_type=client_credentials
+    scope=client_credentials
+
+cURL
+
+    curl -X POST "https://api.payments.ca/accesstoken" \
+      -u "$CONSUMER_KEY:$CONSUMER_SECRET" \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "grant_type=client_credentials&scope=client_credentials"
+
+Success response (200)
+
+    {
+      "token_type": "Bearer",
+      "access_token": "<ACCESS_TOKEN>",
+      "expires_in": "1799",
+      "status": "approved",
+      "api_product_list": "[rtr-sandbox-product]",
+      "api_product_list_json": ["rtr-sandbox-product"],
+      "organization_name": "paymentscanada",
+      "client_id": "<CONSUMER_KEY>",
+      "application_name": "<APP_UUID>",
+      "issued_at": "1784507712073",
+      "refresh_token_expires_in": "0",
+      "refresh_count": "0",
+      "scope": ""
+    }
+
+Notes for developers
+
+-   Cache token and refresh before expiry (expires_in ≈ 30 minutes
+    observed; portal docs historically mention shorter windows — always
+    use expires_in).
+-   Send as Authorization: Bearer <access_token> on all RTR calls.
+
+------------------------------------------------------------------------
+
+3) Send Payment (pacs.008 → pacs.002)
+
+Endpoint
+
+POST https://api.payments.ca/rtr-sandbox/payments
+
+Headers
+
+    Authorization: Bearer <ACCESS_TOKEN>
+    Content-Type: application/vnd.api.v1+json
+    Accept: application/vnd.api.v1+json
+    x-uetr: 899860fa-1b98-45df-b8aa-c56d8df0f047
+    traceability-id: e23d32eb-c7f2-4836-a314-557efe95a525
+
+Request body
+
+    {
+      "business_application_header": {
+        "from": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          }
+        },
+        "to": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": {
+                  "identification": "RTR"
+                }
+              }
+            }
+          }
+        },
+        "business_message_identifier": "PAY4507712117",
+        "message_definition_identifier": "pacs.008.001.08",
+        "creation_date": "2026-07-20T00:35:12.117Z"
+      },
+      "fi_to_fi_customer_credit_transfer": {
+        "group_header": {
+          "message_identification": "PAY4507712117",
+          "creation_date_time": "2026-07-20T00:35:12.117Z",
+          "number_of_transactions": "1",
+          "settlement_information": {
+            "settlement_method": "CLRG",
+            "clearing_system": { "code": "RTR" }
+          }
+        },
+        "credit_transfer_transaction_information": {
+          "payment_identification": {
+            "end_to_end_identification": "E2E4507712117",
+            "uetr": "899860fa-1b98-45df-b8aa-c56d8df0f047"
+          },
+          "payment_type_information": {
+            "local_instrument": { "proprietary": "RTREXCHANGE" }
+          },
+          "interbank_settlement_amount": {
+            "currency": "CAD",
+            "amount": 100
+          },
+          "interbank_settlement_date": "2026-07-20",
+          "charge_bearer": "SLEV",
+          "instructing_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          },
+          "instructed_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "999"
+              }
+            }
+          },
+          "debtor": { "name": "Mr. Zhang" },
+          "debtor_account": {
+            "identification": { "other": { "identification": "12345-123456" } }
+          },
+          "debtor_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          },
+          "creditor_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "999"
+              }
+            }
+          },
+          "creditor": { "name": "Ms. Chloe" },
+          "creditor_account": {
+            "identification": { "other": { "identification": "54321-654321" } }
+          }
+        }
+      }
+    }
+
+Success response (200, pacs.002)
+
+    {
+      "business_application_header": {
+        "from": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": { "identification": "RTR" }
+              }
+            }
+          }
+        },
+        "to": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          }
+        },
+        "business_message_identifier": "20072026000714748",
+        "message_definition_identifier": "pacs.002.001.10",
+        "creation_date": "2026-07-20T00:35:14.748Z"
+      },
+      "fi_to_fi_payment_status_report": {
+        "group_header": {
+          "message_identification": "20072026000714748",
+          "creation_date_time": "2026-07-20T00:35:14.748Z"
+        },
+        "transaction_information_and_status": {
+          "original_group_information": {
+            "original_message_identification": "PAY4507712117",
+            "original_message_name_identification": "pacs.008.001.08"
+          },
+          "original_end_to_end_identification": "E2E4507712117",
+          "original_uetr": "899860fa-1b98-45df-b8aa-c56d8df0f047",
+          "transaction_status": "ACSP",
+          "acceptance_date_time": "2026-07-20T00:35:14.748Z",
+          "clearing_system_reference": "RTR20072026000714748",
+          "instructing_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          },
+          "instructed_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "999"
+              }
+            }
+          }
+        }
+      }
+    }
+
+Key response fields to map in your app
+
+  --------------------------------------------------------------------------------------------------------------------------------------
+  Field                   Path                                                                                   Example
+  ----------------------- -------------------------------------------------------------------------------------- -----------------------
+  Status                  fi_to_fi_payment_status_report.transaction_information_and_status.transaction_status   ACSP
+
+  UETR                    ...original_uetr                                                                       UUID
+
+  Clearing ref            ...clearing_system_reference                                                           RTR...
+
+  Accepted at             ...acceptance_date_time                                                                ISO datetime
+  --------------------------------------------------------------------------------------------------------------------------------------
+
+Validation reject response (200 with admi.002)
+
+When payload is invalid, sandbox may still return HTTP 200 with:
+
+    {
+      "business_application_header": {
+        "message_definition_identifier": "admi.002.001.01"
+      },
+      "message_reject": {
+        "related_reference": { "reference": "NOTAVAILABLE" },
+        "reason": {
+          "rejecting_party_reason": "FF02",
+          "reason_description": "File is not valid ..."
+        }
+      }
+    }
+
+------------------------------------------------------------------------
+
+4) Payment Status Enquiry (pacs.028 → pacs.002)
+
+Endpoint
+
+POST https://api.payments.ca/rtr-sandbox/payments/status
+
+Headers
+
+    Authorization: Bearer <ACCESS_TOKEN>
+    Content-Type: application/vnd.api.v1+json
+    Accept: application/vnd.api.v1+json
+    x-uetr: 899860fa-1b98-45df-b8aa-c56d8df0f047
+    traceability-id: e23d32eb-c7f2-4836-a314-557efe95a525
+
+Request body
+
+    {
+      "business_application_header": {
+        "from": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          }
+        },
+        "to": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": { "identification": "RTR" }
+              }
+            }
+          }
+        },
+        "business_message_identifier": "STS4507713647",
+        "message_definition_identifier": "pacs.028.001.03",
+        "creation_date": "2026-07-20T00:35:13.647Z"
+      },
+      "fi_to_fi_payment_status_request": {
+        "group_header": {
+          "message_identification": "STS4507713647",
+          "creation_date_time": "2026-07-20T00:35:13.647Z"
+        },
+        "transaction_information": {
+          "original_group_information": {
+            "original_message_identification": "PAY4507712117",
+            "original_message_name_identification": "pacs.008.001.08"
+          },
+          "original_end_to_end_identification": "E2E4507712117",
+          "original_uetr": "899860fa-1b98-45df-b8aa-c56d8df0f047",
+          "instructing_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          },
+          "instructed_agent": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "999"
+              }
+            }
+          }
+        }
+      }
+    }
+
+Success response (200, pacs.002)
+
+Same shape as Send Payment response (fi_to_fi_payment_status_report),
+with transaction_status such as ACSP.
+
+Developer tip
+
+Persist from Send Payment: - message_identification -
+end_to_end_identification - uetr
+
+Reuse them in status enquiry.
+
+------------------------------------------------------------------------
+
+5) Inbound Heartbeat (admi.004 → admi.011)
+
+Endpoint
+
+POST https://api.payments.ca/rtr-sandbox/inbound-heartbeat
+
+Headers
+
+    Authorization: Bearer <ACCESS_TOKEN>
+    Content-Type: application/vnd.api.v1+json
+    Accept: application/vnd.api.v1+json
+    traceability-id: e23d32eb-c7f2-4836-a314-557efe95a525
+
+Request body
+
+    {
+      "business_application_header": {
+        "from": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "111"
+              }
+            }
+          }
+        },
+        "to": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": { "identification": "RTR" }
+              }
+            }
+          }
+        },
+        "business_message_identifier": "HBT4507713810",
+        "message_definition_identifier": "admi.004.001.02",
+        "creation_date": "2026-07-20T00:35:13.810Z"
+      },
+      "system_event_notification": {
+        "event_information": {
+          "event_code": "HBRT",
+          "event_description": "1234567890001"
+        }
+      }
+    }
+
+Success response (200, admi.011)
+
+    {
+      "business_application_header": {
+        "message_definition_identifier": "admi.011.001.01",
+        "business_message_identifier": "20072026000713",
+        "creation_date": "2026-07-20T00:35:13.864Z"
+      },
+      "system_event_acknowledgement": {
+        "message_identification": "12345678999990",
+        "acknowledgement_details": {
+          "event_code": "HBRT",
+          "event_description": "1234567890001"
+        }
+      }
+    }
+
+------------------------------------------------------------------------
+
+6) Interest Report (camt.003 → camt.004)
+
+Endpoint
+
+POST https://api.payments.ca/rtr-sandbox/interest-report
+
+Headers
+
+    Authorization: Bearer <ACCESS_TOKEN>
+    Content-Type: application/vnd.api.v1+json
+    Accept: application/vnd.api.v1+json
+    traceability-id: e23d32eb-c7f2-4836-a314-557efe95a525
+
+Request body
+
+    {
+      "business_application_header": {
+        "from": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "001"
+              }
+            }
+          }
+        },
+        "to": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": { "identification": "RCS" }
+              }
+            }
+          }
+        },
+        "business_message_identifier": "INT4507713928",
+        "message_definition_identifier": "camt.003.001.07",
+        "creation_date": "2026-07-20T00:35:13.928Z"
+      },
+      "get_account": {
+        "message_header": {
+          "message_identification": "INT4507713928",
+          "creation_date_time": "2026-07-20T00:35:13.928Z"
+        },
+        "account_query_definition": {
+          "account_criteria": {
+            "query_name": "001_IntRep_20250506001"
+          }
+        }
+      }
+    }
+
+Success response (200, camt.004)
+
+    {
+      "business_application_header": {
+        "message_definition_identifier": "camt.004.001.08"
+      },
+      "return_account": {
+        "message_header": {
+          "query_name": "001_IntRep_20250506001",
+          "original_business_query": {
+            "message_identification": "INT4507713928",
+            "message_name_identification": "camt.003.001.07"
+          }
+        },
+        "report_or_error": {
+          "account_report": [
+            {
+              "account_identification": { "other": { "identification": "001" } },
+              "account_or_error": {
+                "account": {
+                  "name": "Bank of Montreal",
+                  "currency": "CAD",
+                  "multilateral_balance": [
+                    {
+                      "amount": 1000000,
+                      "credit_debit_indicator": "CRDT",
+                      "type": { "proprietary": "STAB" },
+                      "restriction_type": {
+                        "type": { "identification": "BoC Interest Rate" },
+                        "description": "0.20"
+                      }
+                    },
+                    {
+                      "amount": 54.79,
+                      "credit_debit_indicator": "CRDT",
+                      "type": { "proprietary": "IAMT" }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+
+Balance type codes observed
+
+  Code   Meaning (practical)
+  ------ ----------------------------
+  STAB   Settlement account balance
+  IAMT   Interest amount
+
+------------------------------------------------------------------------
+
+7) Payment Capacity Balance Report (camt.003 → camt.004)
+
+Endpoint
+
+POST https://api.payments.ca/rtr-sandbox/payment-capacity-balance-report
+
+Headers
+
+Same as Interest Report.
+
+Request body — End of recon cycle
+
+    {
+      "business_application_header": {
+        "from": {
+          "financial_institution_identification": {
+            "financial_institution_identification": {
+              "clearing_system_member_identification": {
+                "member_identification": "001"
+              }
+            }
+          }
+        },
+        "to": {
+          "organisation_identification": {
+            "identification": {
+              "organisation_identification": {
+                "other": { "identification": "RCS" }
+              }
+            }
+          }
+        },
+        "business_message_identifier": "BAL4507714001",
+        "message_definition_identifier": "camt.003.001.07",
+        "creation_date": "2026-07-20T00:35:14.000Z"
+      },
+      "get_account": {
+        "message_header": {
+          "message_identification": "BAL4507714001",
+          "creation_date_time": "2026-07-20T00:35:14.000Z"
+        },
+        "account_query_definition": {
+          "account_criteria": {
+            "query_name": "001_BalReport_20250506001"
+          }
+        }
+      }
+    }
+
+Request body — Current balance
+
+Use member 002 and query name 002_CurBalReport.
+
+Response note (sandbox observation)
+
+Live sandbox currently often returns HTTP 200 with an empty JSON object
+{} for balance-report queries. Implementers should handle: - full
+camt.004 (return_account) when present - empty body / no report lines as
+a valid sandbox stub case
+
+------------------------------------------------------------------------
+
+8) Status / reject codes cheat sheet
+
+  -----------------------------------------------------------------------
+  Code                    Where                   Meaning
+  ----------------------- ----------------------- -----------------------
+  ACSP                    pacs.002                Accepted for settlement
+                          transaction_status      
+
+  ACSC                    pacs.002                Settlement completed
+
+  RJCT                    pacs.002                Rejected
+
+  PDNG                    pacs.002                Pending
+
+  FF01 / FF02             admi.002 reject reason  Format / schema
+                                                  validation failure
+
+  HBRT                    admi.004 / admi.011     Heartbeat event
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+9) Minimal client pseudocode
+
+    token = POST /accesstoken (Basic auth)
+    headers = {
+      Authorization: Bearer token.access_token
+      Content-Type: application/vnd.api.v1+json
+      Accept: application/vnd.api.v1+json
+      x-uetr: <uuid>
+      traceability-id: <uuid>
+    }
+
+    heartbeat = POST /rtr-sandbox/inbound-heartbeat
+
+    paymentReq = build pacs.008
+    paymentRes = POST /rtr-sandbox/payments
+    if paymentRes.message_reject -> show reject
+    else status = paymentRes.fi_to_fi_payment_status_report...transaction_status
+
+    statusReq = build pacs.028 using payment UETR / E2E / message id
+    statusRes = POST /rtr-sandbox/payments/status
+
+------------------------------------------------------------------------
+
+10) Machine-readable examples
+
+Full live request/response samples (sanitized):
+
+-   api-examples/rtr-sandbox-live-examples.json
+
+Official OpenAPI / Postman references:
+
+-   https://github.com/paymentscanada/api-toolkit (folder
+    swagger-oas/RTR-Sandbox and postman-collection/RTR-Sandbox)
+
+------------------------------------------------------------------------
+
+11) Checklist for app development team
+
+1.  Create Developer Portal app with product rtr-sandbox-product
+2.  Implement OAuth client-credentials token helper
+3.  Implement 5 RTR POST clients with shared header builder
+4.  Persist payment identifiers after send for status enquiry
+5.  Treat HTTP 200 + message_reject as business failure
+6.  Map transaction_status to user-friendly UI labels
+7.  Add retry/backoff for 429 / 503
+8.  Keep secrets server-side (never ship Consumer Secret in mobile/web
+    clients)
