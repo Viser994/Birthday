@@ -1,0 +1,27 @@
+{
+  "name": "rtr-sandbox-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive Payments Canada Real-Time Rail (RTR) sandbox explorer",
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "start": "NODE_ENV=production node server/index.js",
+    "install:all": "npm install && npm --prefix client install"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

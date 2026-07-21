@@ -1,0 +1,611 @@
+RTR Traceability Matrix
+
+Mapping this solution to Payments Canada guidelines
+
+Document ID: RTR-TRC-001
+Version: 1.0
+Date: 2026-07-20
+Audience: Product, Architecture, Development, QA, Compliance
+Scope: Payments Canada Real-Time Rail (RTR) sandbox integration via REST
+APIs
+
+This document provides bidirectional traceability between: 1. Payments
+Canada published guidelines / sandbox capabilities
+2. ISO 20022 RTR message specifications
+3. Sandbox REST endpoints
+4. This repository’s API contract and implementation
+5. Verification evidence
+
+------------------------------------------------------------------------
+
+1. Source of truth references (Payments Canada)
+
+  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Ref ID               Source            URL / location                                                                                                     How it is used
+  -------------------- ----------------- ------------------------------------------------------------------------------------------------------------------ --------------------
+  PC-RTR-PORTAL        RTR Sandbox API   https://developer.payments.ca/rtr-sandbox-api/apis                                                                 Primary sandbox API
+                       (Developer                                                                                                                           capability list and
+                       Portal)                                                                                                                              message flows
+
+  PC-RTR-TECH          Technology and    https://www.payments.ca/systems-services/payment-systems/real-time-rail-payment-system/technology-and-innovation   Sandbox purpose, ISO
+                       innovation (RTR)                                                                                                                     20022 adoption
+                                                                                                                                                            guidance
+
+  PC-RTR-NEWS-SBX      Explore the RTR   https://www.payments.ca/explore-real-time-rail-sandbox-api-environment                                             Sandbox availability
+                       sandbox API                                                                                                                          / readiness
+                       environment                                                                                                                          messaging
+
+  PC-RTR-ISO-HUB       RTR ISO 20022     https://payments.ca/node/181                                                                                       Official message
+                       message                                                                                                                              specs
+                       specifications                                                                                                                       (head/pacs/admi) and
+                       hub                                                                                                                                  flow diagrams
+
+  PC-RTR-FACT          Sandbox RTR API   https://payments.ca/sites/default/files/2022-07/PaymentsCanada_SandboxRTR_API_Factsheet_En.pdf                     Exchange
+                       Factsheet (PDF)                                                                                                                      inbound/outbound
+                                                                                                                                                            capability
+                                                                                                                                                            descriptions
+
+  PC-API-TOOLKIT       Official API      https://github.com/paymentscanada/api-toolkit                                                                      Concrete schemas,
+                       toolkit                                                                                                                              headers, Postman
+                       (OpenAPI +                                                                                                                           samples
+                       Postman)                                                                                                                             
+
+  PC-GETTING-STARTED   Developer Portal  https://developer.payments.ca/getting-started                                                                      Registration, My
+                       Getting Started                                                                                                                      Apps, OAuth token
+                                                                                                                                                            usage
+
+  PC-ACCESS-TOKEN      Access Token      https://developer.payments.ca/access-token-generation/apis/post/accesstoken                                        Client-credentials
+                       Generation API                                                                                                                       authentication
+  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Official ISO 20022 message artefacts referenced by Payments Canada
+
+  -----------------------------------------------------------------------
+  Message           Spec family       Payments Canada   Sandbox role
+                                      artefact (from    
+                                      PC-RTR-ISO-HUB)   
+  ----------------- ----------------- ----------------- -----------------
+  head.001          Business          RTR business      Wrapper on all
+                    Application       application       RTR messages
+                    Header            header (head.001) 
+
+  pacs.008          FI to FI Customer RTR FI to FI      Send payment
+                    Credit Transfer   customer credit   
+                                      transfer          
+                                      (pacs.008)        
+
+  pacs.002          FI to FI Payment  RTR FI to FI      Payment / enquiry
+                    Status Report     payment status    response
+                                      report (pacs.002) 
+
+  pacs.028          FI to FI Payment  RTR FI to FI      Payment status
+                    Status Request    payment status    enquiry
+                                      request           
+                                      (pacs.028)        
+
+  admi.002          Message Reject    RTR message       Syntax /
+                                      reject (admi.002) validation reject
+
+  admi.004          System Event      RTR system event  Heartbeat request
+                    Notification      notification      
+                                      (admi.004)        
+
+  admi.011          System Event      RTR system event  Heartbeat
+                    Acknowledgement   acknowledgement   response
+                                      (admi.011)        
+
+  camt.003          Get Account       Used by sandbox   C&S report
+                                      Interest /        request
+                                      Balance APIs      
+
+  camt.004          Return Account    Used by sandbox   C&S report
+                                      Interest /        response
+                                      Balance APIs      
+  -----------------------------------------------------------------------
+
+  Note: Full PDF/Excel message usage guidelines remain on Payments
+  Canada / Swift MyStandards. This matrix maps sandbox REST usage to
+  those message families.
+
+------------------------------------------------------------------------
+
+2. Traceability ID scheme
+
+  -----------------------------------------------------------------------
+  Prefix                  Meaning                 Example
+  ----------------------- ----------------------- -----------------------
+  PC-...                  Payments Canada source  PC-RTR-PORTAL
+                          reference               
+
+  REQ-...                 Business / technical    REQ-AUTH-001
+                          requirement derived     
+                          from PC guidance        
+
+  MSG-...                 ISO 20022 message       MSG-PACS008-001
+                          requirement             
+
+  API-...                 Sandbox REST endpoint   API-PAY-001
+                          capability              
+
+  CTR-...                 Section in our API      CTR-SEND
+                          contract                
+
+  APP-...                 Implementation artefact APP-CLIENT-SEND
+                          in this repo            
+
+  TST-...                 Verification / test     TST-E2E-001
+                          scenario                
+
+  GAP-...                 Known gap / deferred    GAP-JWS-001
+                          item                    
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+3. Requirements ← Payments Canada guidelines
+
+  ----------------------------------------------------------------------------------------
+  Req ID         Requirement statement Derived from          Priority       Coverage
+                                                                            status
+  -------------- --------------------- --------------------- -------------- --------------
+  REQ-AUTH-001   Developers must       PC-GETTING-STARTED,   Must           Covered
+                 register and create a PC-RTR-TECH                          
+                 product-specific app                                       
+                 to call sandbox APIs                                       
+
+  REQ-AUTH-002   Calls must use OAuth  PC-ACCESS-TOKEN,      Must           Covered
+                 2.0                   PC-GETTING-STARTED,                  
+                 client-credentials    OpenAPI security                     
+                 access token          scheme                               
+
+  REQ-AUTH-003   RTR sandbox calls     Live portal product   Must           Covered
+                 require app product   binding / toolkit                    
+                 rtr-sandbox-product   pre-requisites                       
+
+  REQ-ISO-001    RTR transactions use  PC-RTR-PORTAL,        Must           Covered
+                 ISO 20022 messaging   PC-RTR-TECH,                         
+                                       PC-RTR-ISO-HUB                       
+
+  REQ-EXCH-001   Participant/CSP can   PC-RTR-PORTAL,        Must           Covered
+                 send credit transfer  PC-RTR-FACT,                         
+                 using pacs.008;       PC-RTR-ISO-HUB                       
+                 Exchange responds                                          
+                 pacs.002 or admi.002                                       
+
+  REQ-EXCH-002   Participant can       PC-RTR-PORTAL,        Must           Covered
+                 enquire payment       PC-RTR-FACT,                         
+                 status using          PC-RTR-ISO-HUB                       
+                 pacs.028; response                                         
+                 pacs.002 or admi.002                                       
+
+  REQ-EXCH-003   Participant/CSP can   PC-RTR-PORTAL,        Must           Covered
+                 send heartbeat        PC-RTR-ISO-HUB                       
+                 admi.004; Exchange                                         
+                 responds admi.011 or                                       
+                 admi.002                                                   
+
+  REQ-CNS-001    Participant can       PC-RTR-PORTAL         Should         Covered
+                 request Interest                                           
+                 Report via camt.003;                                       
+                 C&S returns camt.004                                       
+                 or admi.002                                                
+
+  REQ-CNS-002    Participant can       PC-RTR-PORTAL         Should         Partial
+                 request Balance /                                          (sandbox often
+                 payment-capacity                                           empty body)
+                 report via camt.003;                                       
+                 C&S returns camt.004                                       
+                 or admi.002                                                
+
+  REQ-HDR-001    Requests include      PC-RTR-ISO-HUB,       Must           Covered
+                 Business Application  toolkit BAH schema                   
+                 Header (head.001                                           
+                 mapping)                                                   
+
+  REQ-HDR-002    Payment tracking uses Toolkit OpenAPI       Must           Covered
+                 UETR (x-uetr /        parameters                           
+                 payment                                                    
+                 identification)                                            
+
+  REQ-HDR-003    Traceability ID       Toolkit               Should         Covered
+                 should correlate a    traceability-id                      
+                 call across systems   parameter                            
+
+  REQ-HDR-004    Payload integrity via Toolkit OpenAPI       Should (prod)  Gap noted
+                 x-jws-signature       (required in schema)  / Optional     
+                                                             (sandbox       
+                                                             observed)      
+
+  REQ-VAL-001    Syntax validation     PC-RTR-PORTAL,        Must           Covered
+                 failures return       PC-RTR-ISO-HUB                       
+                 Message Reject                                             
+                 admi.002                                                   
+
+  REQ-UX-001     Sandbox enables       PC-RTR-TECH,          Must           Covered
+                 exploration with      PC-GETTING-STARTED                   
+                 stubbed                                                    
+                 non-production data                                        
+
+  REQ-SEC-001    Consumer secrets must Portal security       Must           Covered
+                 not be embedded in    practice / standard                  (server-side
+                 public clients        API hygiene                          proxy)
+  ----------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+4. Message specification mapping
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Msg ID            ISO message       PC guideline      Direction      Request message def           Expected response Contract        App artefact
+                                      capability                                                                       section         
+  ----------------- ----------------- ----------------- -------------- ----------------------------- ----------------- --------------- ----------------------------------
+  MSG-PACS008-001   pacs.008.001.08   Exchange Inbound  Inbound to     pacs.008.001.08               pacs.002 /        CTR-SEND        server/scenarios.js send-payment;
+                                      — Send payment    Exchange                                     admi.002                          docs/RTR-REST-API-CONTRACT.md §3
+
+  MSG-PACS028-001   pacs.028.001.03   Exchange Inbound  Inbound to     pacs.028.001.03               pacs.002 /        CTR-STATUS      payment-status scenario; contract
+                                      — Payment enquiry Exchange                                     admi.002                          §4
+
+  MSG-PACS002-001   pacs.002.001.10   Payment Status    Outbound from  n/a (response)                Status codes      CTR-SEND,       client/src/lib/responseReader.js
+                                      Report            Exchange                                     e.g. ACSP         CTR-STATUS      
+
+  MSG-ADMI004-001   admi.004.001.02   Heartbeat request Inbound to     admi.004.001.02               admi.011 /        CTR-HEARTBEAT   heartbeat scenario; contract §5
+                                      (participant →    Exchange                                     admi.002                          
+                                      Exchange)                                                                                        
+
+  MSG-ADMI011-001   admi.011.001.01   Heartbeat         Outbound from  n/a (response)                HBRT ack          CTR-HEARTBEAT   response reader heartbeat summary
+                                      acknowledgement   Exchange                                                                       
+
+  MSG-ADMI002-001   admi.002.001.01   Message reject on Outbound from  n/a (response)                reject code +     CTR-REJECT      send-payment-reject scenario
+                                      validation        Exchange/C&S                                 description                       
+                                      failure                                                                                          
+
+  MSG-CAMT003-INT   camt.003.001.07   C&S Interest      Inbound to C&S camt.003.001.07               camt.004 /        CTR-INTEREST    interest-report scenario; contract
+                                      report request                                                 admi.002                          §6
+
+  MSG-CAMT003-BAL   camt.003.001.07   C&S Balance       Inbound to C&S camt.003.001.07               camt.004 /        CTR-BALANCE     balance-eod, balance-current;
+                                      report request                                                 admi.002                          contract §7
+
+  MSG-CAMT004-001   camt.004.001.08   C&S Return        Outbound from  n/a (response)                balances /        CTR-INTEREST,   response reader account report
+                                      Account report    C&S                                          interest lines    CTR-BALANCE     
+
+  MSG-HEAD001-001   head.001 (BAH     Business          Both           business_application_header   echoed/response   All CTR-*       builders in server/scenarios.js
+                    JSON mapping)     Application                                                    BAH               message APIs    
+                                      Header on all                                                                                    
+                                      messages                                                                                         
+  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Toolkit schema crosswalk
+
+  --------------------------------------------------------------------------------------------------------------------------
+  Msg ID                              Official toolkit file (PC-API-TOOLKIT)
+  ----------------------------------- --------------------------------------------------------------------------------------
+  MSG-PACS008-001                     swagger-oas/RTR-Sandbox/spec-exchange/FIToFICustomerCreditTransferIncomingV08.yaml +
+                                      R1-Inbound-Participant-PaymentAPI.yml
+
+  MSG-PACS028-001                     FIToFIPaymentStatusRequestV03.yaml + Payment API path /payments/status
+
+  MSG-PACS002-001                     FIToFIPaymentStatusReportV10.yaml
+
+  MSG-ADMI004-001 / MSG-ADMI011-001   SystemEventNotificationV02.yaml, SystemEventAcknowledgementV01.yaml,
+                                      R1-Inbound-CSP-HeartbeatAPI.yml
+
+  MSG-ADMI002-001                     MessageRejectV01.yaml
+
+  MSG-CAMT003-INT / MSG-CAMT004-001   spec-CnS/interest-report.yaml, spec-CnS/iso_models/camt_003.yaml, camt_004.yaml
+
+  MSG-CAMT003-BAL                     spec-CnS/payment-capacity-balance-report.yaml
+
+  MSG-HEAD001-001                     BusinessApplicationHeaderV02.yaml / head_001.yaml
+
+  Headers                             headers.yaml, parameters.yaml (x-uetr, traceability-id, x-jws-signature)
+  --------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+5. API capability matrix (guideline → endpoint → contract → app → test)
+
+  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  API ID         PC capability REST endpoint                                       ISO flow             Contract                    Implementation         Test ID        Status
+                 (guideline                                                                                                                                               
+                 text)                                                                                                                                                    
+  -------------- ------------- --------------------------------------------------- -------------------- --------------------------- ---------------------- -------------- -----------
+  API-AUTH-001   Generate      POST /accesstoken                                   OAuth2               CTR-TOKEN                   server/rtr-client.js   TST-AUTH-001   Pass (live)
+                 access token                                                      client_credentials   (RTR-REST-API-CONTRACT.md   getAccessToken                        
+                 for API calls                                                                          §2)                                                               
+
+  API-PAY-001    Send payment  POST /rtr-sandbox/payments                          pacs.008 → pacs.002  CTR-SEND §3                 scenario send-payment  TST-PAY-001    Pass (live,
+                 (Exchange                                                                                                                                                ACSP)
+                 Inbound)                                                                                                                                                 
+
+  API-PAY-002    Syntax        POST /rtr-sandbox/payments                          pacs.008 → admi.002  CTR-REJECT §3               scenario               TST-PAY-002    Pass (live,
+                 validation                                                                                                         send-payment-reject                   FF02)
+                 reject                                                                                                                                                   
+
+  API-STS-001    Payment       POST /rtr-sandbox/payments/status                   pacs.028 → pacs.002  CTR-STATUS §4               scenario               TST-STS-001    Pass (live,
+                 enquiry                                                                                                            payment-status                        ACSP)
+
+  API-HBT-001    Heartbeat     POST /rtr-sandbox/inbound-heartbeat                 admi.004 → admi.011  CTR-HEARTBEAT §5            scenario heartbeat     TST-HBT-001    Pass (live)
+                 participant →                                                                                                                                            
+                 Exchange                                                                                                                                                 
+
+  API-INT-001    Interest      POST /rtr-sandbox/interest-report                   camt.003 → camt.004  CTR-INTEREST §6             scenario               TST-INT-001    Pass (live)
+                 report                                                                                                             interest-report                       
+
+  API-BAL-001    Balance       POST /rtr-sandbox/payment-capacity-balance-report   camt.003 → camt.004  CTR-BALANCE §7              scenarios balance-eod, TST-BAL-001    Partial
+                 report (EOD /                                                                                                      balance-current                       (HTTP 200,
+                 current)                                                                                                                                                 empty {}
+                                                                                                                                                                          observed)
+
+  API-E2E-001    End-to-end    /payments + /payments/status                        pacs.008 → pacs.028  Contract §0 + §3 + §4       scenario               TST-E2E-001    Pass (live)
+                 send then                                                         → pacs.002                                       e2e-payment-flow,                     
+                 enquire                                                                                                            guided tour                           
+  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postman collection alignment (PC-API-TOOLKIT)
+
+  -----------------------------------------------------------------------
+  Toolkit Postman request API ID                  Our scenario ID
+  ----------------------- ----------------------- -----------------------
+  Token                   API-AUTH-001            auth-token
+
+  Send Payment            API-PAY-001             send-payment
+
+  Payment Status (ACSP) - API-STS-001             payment-status
+  With Instructing and                            
+  Instructed                                      
+
+  Interest Report (ACSP)  API-INT-001             interest-report
+
+  Balance Report (ACSP) - API-BAL-001             balance-eod
+  End of Recon Cycle                              
+
+  Balance Report (ACSP) - API-BAL-001             balance-current
+  Current Balance                                 
+
+  Inbound Heartbeat       API-HBT-001             heartbeat
+  (ACSP) - RDP                                    
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+6. Header & security controls traceability
+
+  -------------------------------------------------------------------------------------------------------------
+  Control ID        PC / toolkit expectation      Our contract rule       Implementation         Compliance
+  ----------------- ----------------------------- ----------------------- ---------------------- --------------
+  CTL-AUTH-BEARER   OAuth bearer token on API     Required                server/rtr-client.js   Compliant
+                    calls                         Authorization: Bearer                          
+
+  CTL-CT-VND        application/vnd.api.v1+json   Required                rtr-client.js          Compliant
+                                                  content-type/accept     CONTENT_TYPE           
+
+  CTL-UETR          x-uetr for pacs.008 /         Recommended/sent on     extracted/generated    Compliant
+                    pacs.028 tracking             payment APIs            UUID                   (sandbox)
+
+  CTL-TRACE         traceability-id UUID per call Recommended/sent        generated per call     Compliant
+                                                                                                 (sandbox)
+
+  CTL-JWS           x-jws-signature for payload   Documented; sandbox     Not signed in current  GAP-JWS-001
+                    signing                       often works without     sandbox client         
+
+  CTL-PRODUCT       App must bind to correct API  Enforce/detect          health                 Compliant
+                    product                       rtr-sandbox-product     authMeta.productOk     
+
+  CTL-SECRET        Protect consumer secret       Server-side only / .env Express proxy, no      Compliant
+                                                                          secret in browser      
+                                                                          bundle                 
+  -------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+7. Field-level mapping (selected critical fields)
+
+7.1 Send Payment (pacs.008)
+
+  -----------------------------------------------------------------------------------------------------------------------------
+  Business field PC/ISO intent    JSON path (sandbox)                                      Contract       App handling
+  -------------- ---------------- -------------------------------------------------------- -------------- ---------------------
+  Debtor name    Payer            ...credit_transfer_transaction_information.debtor.name   CTR-SEND       Form field + readable
+                 identification                                                                           request card
+
+  Creditor name  Payee            ...creditor.name                                         CTR-SEND       Form field + readable
+                 identification                                                                           request card
+
+  Amount /       Interbank        ...interbank_settlement_amount.amount/currency           CTR-SEND       Form amount; CAD
+  currency       settlement                                                                               default
+                 amount                                                                                   
+
+  UETR           End-to-end       ...payment_identification.uetr + header x-uetr           CTR-SEND       Generated/persisted
+                 tracking UUID                                                                            in session
+
+  End-to-end ID  Customer         ...end_to_end_identification                             CTR-SEND       Generated/persisted
+                 reference                                                                                
+
+  Instructing FI Debtor agent     ...instructing_agent...member_identification             CTR-SEND       Default 111 (sandbox
+                 member ID                                                                                sample)
+
+  Instructed FI  Creditor agent   ...instructed_agent...member_identification              CTR-SEND       Default 999
+                 member ID                                                                                
+
+  Clearing       RTR clearing     settlement_information.clearing_system.code=RTR          CTR-SEND       Hard-coded per
+  system                                                                                                  toolkit sample
+
+  Local          RTR exchange     local_instrument.proprietary=RTREXCHANGE                 CTR-SEND       Hard-coded per
+  instrument     service                                                                                  toolkit sample
+  -----------------------------------------------------------------------------------------------------------------------------
+
+7.2 Payment Status Report (pacs.002)
+
+  ----------------------------------------------------------------------------------------------------------------
+  Business field    PC/ISO intent     JSON path                                                  App handling
+  ----------------- ----------------- ---------------------------------------------------------- -----------------
+  Transaction       Acceptance /      ...transaction_information_and_status.transaction_status   Mapped (ACSP →
+  status            reject / pending                                                             “Accepted for
+                                                                                                 settlement”)
+
+  Original UETR     Correlate to      ...original_uetr                                           Display + copy
+                    original payment                                                             
+
+  Clearing system   Exchange          ...clearing_system_reference                               Display + copy
+  reference         reference                                                                    
+
+  Acceptance        When accepted     ...acceptance_date_time                                    Formatted local
+  datetime                                                                                       time
+  ----------------------------------------------------------------------------------------------------------------
+
+7.3 Message Reject (admi.002)
+
+  ----------------------------------------------------------------------------------------------------
+  Business field    PC/ISO intent     JSON path                                      App handling
+  ----------------- ----------------- ---------------------------------------------- -----------------
+  Reject code       Machine reason    message_reject.reason.rejecting_party_reason   Error badge
+                                                                                     (e.g. FF02)
+
+  Reason text       Human diagnostics message_reject.reason.reason_description       Summary text
+  ----------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+8. Verification evidence
+
+  --------------------------------------------------------------------------------------------
+  Test ID           Maps to            Evidence method           Result         Date
+  ----------------- ------------------ ------------------------- -------------- --------------
+  TST-AUTH-001      API-AUTH-001,      Live POST /accesstoken    Pass           2026-07-20
+                    REQ-AUTH-002       with rtr-sandbox-product                 
+                                       app                                      
+
+  TST-PAY-001       API-PAY-001,       Live send payment →       Pass           2026-07-20
+                    MSG-PACS008-001    pacs.002 ACSP                            
+
+  TST-PAY-002       API-PAY-002,       Malformed payload →       Pass           2026-07-20
+                    MSG-ADMI002-001,   admi.002 FF02                            
+                    REQ-VAL-001                                                 
+
+  TST-STS-001       API-STS-001,       Status enquiry using      Pass           2026-07-20
+                    MSG-PACS028-001    prior UETR/E2E/message id                
+
+  TST-HBT-001       API-HBT-001,       Heartbeat → admi.011      Pass           2026-07-20
+                    MSG-ADMI004-001                                             
+
+  TST-INT-001       API-INT-001,       Interest report →         Pass           2026-07-20
+                    MSG-CAMT003-INT    camt.004 with STAB/IAMT                  
+
+  TST-BAL-001       API-BAL-001,       Balance report endpoints  Partial (empty 2026-07-20
+                    REQ-CNS-002                                  body)          
+
+  TST-E2E-001       API-E2E-001        Guided tour / e2e         Pass           2026-07-18 /
+                                       scenario                                 2026-07-20
+
+  TST-PRODUCT-001   REQ-AUTH-003       Wrong product             Pass           2026-07-18
+                                       (payments-rail-sandbox)                  
+                                       yields 401 on RTR paths                  
+  --------------------------------------------------------------------------------------------
+
+Sample payloads used for evidence:
+docs/api-examples/rtr-sandbox-live-examples.json
+
+------------------------------------------------------------------------
+
+9. Coverage summary
+
+  Area                                         PC guideline items in scope   Fully covered   Partial   Gap
+  -------------------------------------------- ----------------------------- --------------- --------- -----------------
+  Authentication / portal app                  3                             3               0         0
+  Exchange inbound (pay/status/heartbeat)      3                             3               0         0
+  Validation reject                            1                             1               0         0
+  Clearing & Settlement reports                2                             1               1         0
+  Header controls                              4                             3               0         1 (GAP-JWS-001)
+  ISO message families (sandbox inbound set)   9                             9               0         0
+
+Overall sandbox inbound scope coverage: High for Exchange + Interest
+Report; Balance Report response body is sandbox-limited; JWS signing
+deferred for sandbox.
+
+------------------------------------------------------------------------
+
+10. Gaps and out-of-scope (explicit)
+
+  ---------------------------------------------------------------------------------------------------------------------
+  Gap ID                       Description                   PC reference     Impact             Planned handling
+  ---------------------------- ----------------------------- ---------------- ------------------ ----------------------
+  GAP-JWS-001                  Request/response JWS          Toolkit OpenAPI  Needed for         Add
+                               (x-jws-signature) not         required header  production-grade   signing/verification
+                               implemented in current client                  integrity          before production
+                                                                                                 onboarding
+
+  GAP-BAL-001                  Balance report returns empty  PC-RTR-PORTAL    Cannot assert      Keep request contract;
+                               {} in current sandbox stub    balance          camt.004 body in   re-test when sandbox
+                                                             capability       sandbox today      data enriched
+
+  GAP-OUTBOUND-001             Exchange outbound APIs        PC-RTR-FACT      Required for full  Future phase
+                               (Exchange → participant       outbound section participant/CSP    (webhook/receiver
+                               pacs.008/pacs.002/admi.004)                    connectivity       endpoints)
+                               not implemented                                                   
+
+  GAP-PROD-PARTICIPATION-001   Production RTR participation  Payments Canada  Sandbox ≠          Separate compliance &
+                               / membership onboarding not   membership / RTR production access  connectivity
+                               in this repo                  participation                       workstream
+                                                             rules                               
+
+  GAP-MYSTANDARDS-001          Swift MyStandards detailed    PC-RTR-ISO-HUB   Deep schema        Track PC companion
+                               usage rules not embedded      note             constraints may    docs + MyStandards
+                                                                              differ by release  updates
+  ---------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+11. Forward / backward traceability views
+
+11.1 Forward (guideline → build)
+
+PC-RTR-PORTAL Send payment
+→ REQ-EXCH-001
+→ MSG-PACS008-001 / API-PAY-001
+→ CTR-SEND
+→ APP scenario send-payment + response reader
+→ TST-PAY-001
+
+11.2 Backward (defect → guideline)
+
+If payment status UI mislabels ACSP:
+responseReader status map
+→ MSG-PACS002-001
+→ REQ-EXCH-001 / PC-RTR-ISO-HUB pacs.002
+→ update mapping + TST-STS-001
+
+------------------------------------------------------------------------
+
+12. Document control
+
+  ---------------------------------------------------------------------------------
+  Item                                Value
+  ----------------------------------- ---------------------------------------------
+  Owner                               RTR integration team
+
+  Related docs                        RTR-REST-API-CONTRACT.md,
+                                      RTR-API-QUICK-REFERENCE.md,
+                                      api-examples/rtr-sandbox-live-examples.json
+
+  Related code                        server/scenarios.js, server/rtr-client.js,
+                                      client/src/lib/responseReader.js
+
+  Review cadence                      On each Payments Canada sandbox/spec update
+
+  Classification                      Internal – share with implementation & QA
+                                      partners
+  ---------------------------------------------------------------------------------
+
+Change log
+
+  -----------------------------------------------------------------------
+  Version                 Date                    Change
+  ----------------------- ----------------------- -----------------------
+  1.0                     2026-07-20              Initial traceability
+                                                  matrix against PC
+                                                  sandbox guidelines, ISO
+                                                  message set, toolkit,
+                                                  contract, and live
+                                                  verification
+
+  -----------------------------------------------------------------------
