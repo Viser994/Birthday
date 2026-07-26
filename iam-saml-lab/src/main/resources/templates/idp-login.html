@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IdP — Authenticate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/lab.css}" />
+</head>
+<body>
+  <div class="atmosphere idp" aria-hidden="true"></div>
+  <div class="shell narrow">
+    <header class="top">
+      <div class="brand-mark">
+        <span class="mark idp"></span>
+        <div>
+          <p class="eyebrow">Identity Provider</p>
+          <h1 class="brand">Campus IdP</h1>
+        </div>
+      </div>
+      <a class="ghost" href="/">Lab home</a>
+    </header>
+
+    <section class="panel reveal">
+      <h2>Step 3–4 — Authenticate at the IdP</h2>
+      <p class="lede">
+        The IdP received a SAML AuthnRequest from the SP. Authenticate a demo user to issue an assertion.
+      </p>
+      <p class="hint" th:if="${inspect != null and inspect.demoHint != null}" th:text="${inspect.demoHint}">hint</p>
+      <p class="error" th:if="${error}" th:text="${error}">error</p>
+
+      <dl class="meta" th:if="${inspect != null and inspect.parsed != null}">
+        <div><dt>IdP Entity ID</dt><dd th:text="${idpEntityId}">idp</dd></div>
+        <div><dt>SP Issuer</dt><dd th:text="${inspect.parsed.issuer}">sp</dd></div>
+        <div><dt>ACS URL</dt><dd th:text="${inspect.acsUrl}">acs</dd></div>
+        <div><dt>Request ID</dt><dd th:text="${requestId}">id</dd></div>
+      </dl>
+
+      <details class="xml-details" th:if="${inspect != null and inspect.authnRequestPretty != null}">
+        <summary>Inspect received AuthnRequest</summary>
+        <pre class="console" th:text="${inspect.authnRequestPretty}">xml</pre>
+      </details>
+
+      <form class="form" method="post" action="/idp/sso" th:if="${!hasIdpSession}">
+        <input type="hidden" name="requestId" th:value="${requestId}" />
+        <input type="hidden" name="RelayState" th:value="${relayState}" />
+        <input type="hidden" name="flowId" th:value="${flowId}" />
+        <label>Username
+          <input name="username" value="alice" autocomplete="username" required />
+        </label>
+        <label>Password
+          <input name="password" type="password" value="password" autocomplete="current-password" required />
+        </label>
+        <button class="primary large" type="submit">Sign in &amp; issue SAML Response</button>
+      </form>
+
+      <form class="form" method="post" action="/idp/sso" th:if="${hasIdpSession}">
+        <input type="hidden" name="requestId" th:value="${requestId}" />
+        <input type="hidden" name="RelayState" th:value="${relayState}" />
+        <input type="hidden" name="flowId" th:value="${flowId}" />
+        <input type="hidden" name="useExistingSession" value="true" />
+        <p class="lede">An IdP SSO cookie already exists — this is single sign-on.</p>
+        <button class="primary large" type="submit">Continue with existing IdP session</button>
+      </form>
+
+      <div class="users" th:if="${inspect != null and inspect.demoUsers != null}">
+        <div class="user" th:each="u : ${inspect.demoUsers}">
+          <strong th:text="${u.username}">alice</strong>
+          <span th:text="${u.displayName}">name</span>
+          <span th:text="${u.department}">dept</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
