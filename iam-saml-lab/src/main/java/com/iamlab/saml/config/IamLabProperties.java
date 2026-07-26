@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "iamlab")
 public class IamLabProperties {
   private String appName = "IAM SAML Lab";
-  private String baseUrl = "http://localhost:8100";
+  private String baseUrl = "http://localhost:9200";
   private Sp sp = new Sp();
   private Idp idp = new Idp();
   private Demo demo = new Demo();
@@ -52,7 +52,7 @@ public class IamLabProperties {
 
   public static class Sp {
     private String entityId = "https://sp.iamlab.local/metadata";
-    private String acsUrl = "http://localhost:8100/sp/acs";
+    private String acsUrl = "http://localhost:9200/sp/acs";
     private String sessionCookie = "IAMLAB_SP_SESSION";
 
     public String getEntityId() {
@@ -82,7 +82,7 @@ public class IamLabProperties {
 
   public static class Idp {
     private String entityId = "https://idp.iamlab.local/metadata";
-    private String ssoUrl = "http://localhost:8100/idp/sso";
+    private String ssoUrl = "http://localhost:9200/idp/sso";
     private String sessionCookie = "IAMLAB_IDP_SESSION";
 
     public String getEntityId() {

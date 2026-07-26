@@ -19,7 +19,7 @@ cd iam-saml-lab
 mvn spring-boot:run
 ```
 
-Open: **http://localhost:8100**
+Open: **http://localhost:9200**
 
 Demo users at the IdP:
 
