@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SP — Protected app</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/lab.css}" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <div class="shell narrow">
+    <header class="top">
+      <div class="brand-mark">
+        <span class="mark sp"></span>
+        <div>
+          <p class="eyebrow">Service Provider</p>
+          <h1 class="brand">Acme Learning App</h1>
+        </div>
+      </div>
+      <a class="ghost" href="/">Lab home</a>
+    </header>
+
+    <section class="panel reveal" th:if="${!authenticated}">
+      <h2>Protected resource</h2>
+      <p class="lede">
+        You are not signed in to the SP. In a real app this page would redirect to SAML login automatically.
+      </p>
+      <dl class="meta">
+        <div><dt>SP Entity ID</dt><dd th:text="${spEntityId}">sp</dd></div>
+      </dl>
+      <div class="cta-row">
+        <a class="primary large" href="/sp/start?relayState=/sp/app">Sign in with SAML</a>
+        <a class="ghost" href="/sp/login?relayState=/sp/app">Direct redirect (no preview)</a>
+      </div>
+    </section>
+
+    <section class="panel reveal success-panel" th:if="${authenticated}">
+      <h2>Welcome — federated session active</h2>
+      <p class="lede">
+        This page is unlocked because the SP trusts a SAML assertion from the IdP.
+      </p>
+      <dl class="meta">
+        <div><dt>NameID</dt><dd th:text="${session.nameId}">email</dd></div>
+        <div><dt>Session created</dt><dd th:text="${session.createdAt}">time</dd></div>
+        <div><dt>Flow ID</dt><dd th:text="${session.flowId}">flow</dd></div>
+      </dl>
+      <h3>Attributes from assertion</h3>
+      <pre class="console" th:text="${session.attributes}">attrs</pre>
+      <div class="cta-row">
+        <a class="ghost" href="/sp/logout">Logout SP only</a>
+        <a class="ghost" href="/idp/logout">Logout IdP</a>
+        <a class="primary" href="/">Back to lab timeline</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

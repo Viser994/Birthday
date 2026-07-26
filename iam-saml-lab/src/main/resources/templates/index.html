@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${appName}">IAM SAML Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/lab.css}" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <div class="shell">
+    <header class="top">
+      <div class="brand-mark">
+        <span class="mark"></span>
+        <div>
+          <p class="eyebrow">Interactive workspace</p>
+          <h1 class="brand" th:text="${appName}">IAM SAML Lab</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="ghost" href="/sp/app">Open SP app</a>
+        <a class="primary" href="/sp/start">Start SAML SSO</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="hero-kicker">Learn Identity &amp; Access Management</p>
+      <h2 class="hero-title">Watch SAML authentication happen end to end</h2>
+      <p class="hero-copy">
+        This lab runs a Service Provider and a mock Identity Provider in one Java app.
+        Start SSO, log in at the IdP, and inspect every AuthnRequest and Assertion.
+      </p>
+      <div class="cta-row">
+        <a class="primary large" href="/sp/start">Begin interactive SSO</a>
+        <button type="button" class="ghost large" id="refreshGuide">Load concepts</button>
+      </div>
+      <p class="hint" th:text="${demoHint}">Use alice / password</p>
+    </section>
+
+    <section class="actors" id="actors"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3>Live SSO timeline</h3>
+        <button type="button" class="ghost" id="refreshFlow">Refresh</button>
+      </div>
+      <ol class="timeline" id="timeline">
+        <li class="empty">Start SSO to populate the timeline.</li>
+      </ol>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <h3>IAM &amp; SAML concepts</h3>
+        <div class="concept-list" id="concepts"></div>
+      </div>
+      <div class="panel">
+        <h3>Canonical SAML steps</h3>
+        <ol class="step-list" id="flowSteps"></ol>
+        <h3 class="subhead">Try this</h3>
+        <ul class="try-list" id="tryThis"></ul>
+        <h3 class="subhead">Demo IdP users</h3>
+        <div class="users" id="users"></div>
+      </div>
+    </section>
+
+    <section class="panel session-panel">
+      <div class="panel-head">
+        <h3>Current sessions</h3>
+        <button type="button" class="ghost" id="refreshSession">Check</button>
+      </div>
+      <pre class="console" id="sessionConsole">Checking…</pre>
+      <div class="cta-row">
+        <a class="ghost" href="/sp/logout">Logout SP</a>
+        <a class="ghost" href="/idp/logout">Logout IdP</a>
+      </div>
+    </section>
+  </div>
+  <script th:src="@{/js/lab.js}"></script>
+</body>
+</html>
