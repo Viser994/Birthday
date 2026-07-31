@@ -242,7 +242,7 @@ app.get("*", (req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   const mode = hasLiveCredentials() ? "LIVE" : "DEMO";
   console.log(`RTR Sandbox Explorer listening on http://localhost:${PORT}`);
   console.log(`Mode: ${mode}`);
