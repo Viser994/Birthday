@@ -46,10 +46,11 @@ Without credentials, the app runs in **demo mode** with stubbed ISO 20022-shaped
 
 ```bash
 npm run build
-npm start
+PORT=4000 npm start
 ```
 
-Serves the built UI from the Express server on `PORT` (default `3001`).
+Serves the built UI + API from Express on one port (example: **http://localhost:4000**).
+Default `PORT` is `3001` if unset; set `PORT` to any free port.
 
 ## How it works
 
