@@ -37,8 +37,8 @@ npm run install:all
 npm run dev
 ```
 
-- UI: http://localhost:5173  
-- API: http://localhost:8787  
+- UI: http://localhost:3000  
+- API: http://localhost:3001  
 
 Without credentials, the app runs in **demo mode** with stubbed ISO 20022-shaped responses so every scenario stays interactive.
 
@@ -49,7 +49,7 @@ npm run build
 npm start
 ```
 
-Serves the built UI from the Express server on `PORT` (default `8787`).
+Serves the built UI from the Express server on `PORT` (default `3001`).
 
 ## How it works
 

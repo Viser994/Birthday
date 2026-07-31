@@ -35,4 +35,4 @@ node /workspace/rtr-sandbox-app/demo/scripts/capture-demo.mjs
 bash /workspace/rtr-sandbox-app/demo/scripts/build-video.sh
 ```
 
-Requires Google Chrome, ffmpeg, and the app on `http://localhost:5173`.
+Requires Google Chrome, ffmpeg, and the app on `http://localhost:3000`.
