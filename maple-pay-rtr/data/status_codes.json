@@ -1,0 +1,26 @@
+{
+  "PDNG": {
+    "rtr": "PDNG",
+    "api": "pending",
+    "label": "Pending",
+    "meaning": "The payment has been created and is still being processed."
+  },
+  "ACSP": {
+    "rtr": "ACSP",
+    "api": "accepted",
+    "label": "Accepted for settlement",
+    "meaning": "Payments Canada accepted the payment and settlement is in progress."
+  },
+  "ACSC": {
+    "rtr": "ACSC",
+    "api": "completed",
+    "label": "Completed",
+    "meaning": "Settlement finished. The payee should have the funds."
+  },
+  "RJCT": {
+    "rtr": "RJCT",
+    "api": "rejected",
+    "label": "Rejected",
+    "meaning": "The payment was rejected and no funds moved."
+  }
+}
