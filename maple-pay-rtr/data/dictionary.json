@@ -1,0 +1,76 @@
+{
+  "source": "Maple Pay RTR Data Dictionary & Payload Requirements",
+  "note": "Sandbox/API-contract-derived. Validate against Payments Canada RTR/MyStandards before production.",
+  "messages": [
+    "head.001",
+    "pacs.008.001.08",
+    "pacs.002.001.10",
+    "pacs.028.001.03",
+    "admi.002.001.01",
+    "admi.004.001.02",
+    "admi.011.001.01",
+    "camt.003",
+    "camt.004"
+  ],
+  "integrator_fields": [
+    {
+      "api_name": "amount",
+      "rtr_id": "RTR-AMT-001",
+      "iso_path": "interbank_settlement_amount.amount",
+      "required": true
+    },
+    {
+      "api_name": "currency",
+      "rtr_id": "RTR-AMT-002",
+      "iso_path": "interbank_settlement_amount.currency",
+      "required": false,
+      "default": "CAD"
+    },
+    {
+      "api_name": "payer.name",
+      "rtr_id": "RTR-DBT-001",
+      "iso_path": "debtor.name",
+      "required": true
+    },
+    {
+      "api_name": "payer.account",
+      "rtr_id": "RTR-DBT-002",
+      "iso_path": "debtor_account.identification.other.identification",
+      "required": true
+    },
+    {
+      "api_name": "payee.name",
+      "rtr_id": "RTR-CRD-001",
+      "iso_path": "creditor.name",
+      "required": true
+    },
+    {
+      "api_name": "payee.account",
+      "rtr_id": "RTR-CRD-002",
+      "iso_path": "creditor_account.identification.other.identification",
+      "required": true
+    },
+    {
+      "api_name": "reference",
+      "rtr_id": "RTR-ID-001",
+      "iso_path": "end_to_end_identification",
+      "required": false
+    }
+  ],
+  "generated_by_api": [
+    "internal_payment_id",
+    "business_message_identifier",
+    "message_identification",
+    "uetr",
+    "x-uetr",
+    "traceability_id",
+    "message_definition_identifier",
+    "creation_date",
+    "settlement_method",
+    "clearing_system.code",
+    "local_instrument.proprietary",
+    "charge_bearer",
+    "interbank_settlement_date",
+    "agent member identifications"
+  ]
+}

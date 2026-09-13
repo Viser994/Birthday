@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maple Pay RTR Sandbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="leaf" aria-hidden="true">◆</span>
+      <div>
+        <h1>Maple Pay RTR</h1>
+        <p>Send a real-time CAD payment with four fields.</p>
+      </div>
+    </div>
+    <nav>
+      <a href="#send">Send</a>
+      <a href="#history">History</a>
+      <a href="#guide">Guide</a>
+      <a href="/docs" target="_blank" rel="noreferrer">API docs</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Payments Canada Real-Time Rail · sandbox</p>
+        <h2>You send a simple JSON request. We build the RTR message.</h2>
+        <p class="lede">
+          Integrators do not need ISO 20022, UETR, JWS, or member IDs.
+          Use one header and a short body. The sandbox explains every status in plain English.
+        </p>
+      </div>
+      <aside class="callout">
+        <h3>Only header you need</h3>
+        <pre>X-API-Key: maple_sandbox_dev_key</pre>
+        <p>Optional: <code>Idempotency-Key</code> if you retry the same payment.</p>
+      </aside>
+    </section>
+
+    <section id="send" class="grid">
+      <form id="payment-form" class="card">
+        <div class="card-head">
+          <h3>Send a payment</h3>
+          <label class="switch">
+            <input type="checkbox" id="wait-for-result" />
+            <span>Wait for final status</span>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Amount (CAD)
+            <input id="amount" name="amount" value="25.00" required />
+          </label>
+          <label>Your reference
+            <input id="reference" name="reference" placeholder="INV-1001" />
+          </label>
+        </div>
+
+        <fieldset>
+          <legend>Payer — who is sending</legend>
+          <div class="row">
+            <label>Name
+              <input id="payer-name" value="Jane Doe" required />
+            </label>
+            <label>Account
+              <input id="payer-account" value="WALLET-1001" required />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Payee — who is receiving</legend>
+          <div class="row">
+            <label>Name
+              <input id="payee-name" value="Acme Store" required />
+            </label>
+            <label>Account
+              <input id="payee-account" value="WALLET-2002" required />
+            </label>
+          </div>
+        </fieldset>
+
+        <label>Sandbox outcome
+          <select id="test-outcome">
+            <option value="">Automatic (succeeds unless payee account starts with REJECT or PENDING)</option>
+            <option value="success">Force completed</option>
+            <option value="rejected">Force rejected</option>
+            <option value="pending">Keep pending</option>
+          </select>
+        </label>
+
+        <div class="actions">
+          <button type="submit" id="send-btn">Send payment</button>
+          <button type="button" id="copy-curl" class="ghost">Copy curl</button>
+        </div>
+        <p class="hint">Try payee account <code>REJECT-1</code> to see a rejection, or <code>PENDING-1</code> to leave it pending.</p>
+      </form>
+
+      <div class="stack">
+        <section class="card">
+          <div class="card-head">
+            <h3>Request you will send</h3>
+            <span class="pill">POST /v1/payments</span>
+          </div>
+          <pre id="request-preview" class="json"></pre>
+        </section>
+
+        <section class="card" id="result-card">
+          <div class="card-head">
+            <h3>Result</h3>
+            <span id="result-status" class="pill muted">No payment yet</span>
+          </div>
+          <p id="result-meaning" class="meaning">Fill the form and send a payment. Status will appear here in plain English.</p>
+          <pre id="result-json" class="json empty">{}</pre>
+          <div class="actions hidden" id="result-actions">
+            <button type="button" id="refresh-btn" class="ghost">Refresh status</button>
+            <button type="button" id="check-btn" class="ghost">Status check</button>
+            <button type="button" id="explain-btn" class="ghost">Show RTR messages</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="card" id="rtr-panel" hidden>
+      <div class="card-head">
+        <h3>What we sent to RTR</h3>
+        <span class="pill">Generated for you</span>
+      </div>
+      <p class="meaning">You never send this. It is here so payment and non-payment teams can see the mapping.</p>
+      <pre id="rtr-json" class="json"></pre>
+    </section>
+
+    <section id="history" class="card">
+      <div class="card-head">
+        <h3>Payment history</h3>
+        <div class="actions compact">
+          <button type="button" id="health-btn" class="ghost">Heartbeat</button>
+          <button type="button" id="balance-btn" class="ghost">Balance</button>
+          <button type="button" id="reload-btn" class="ghost">Reload</button>
+        </div>
+      </div>
+      <p id="ops-line" class="meaning"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Amount</th>
+              <th>Payer</th>
+              <th>Payee</th>
+              <th>Reference</th>
+              <th>Id</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="6" class="empty-row">No payments yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="guide" class="card guide">
+      <h3>Integrate in three steps</h3>
+      <ol>
+        <li>
+          <strong>Add one header.</strong>
+          <code>X-API-Key: maple_sandbox_dev_key</code>
+          You can also use <code>Authorization: Bearer maple_sandbox_dev_key</code>.
+        </li>
+        <li>
+          <strong>POST /v1/payments</strong> with amount, payer, and payee.
+          Skip ISO fields. We create UETR, message IDs, settlement date, and agent IDs.
+        </li>
+        <li>
+          <strong>Read <code>status</code>, not HTTP 201.</strong>
+          <code>pending</code> means still moving, <code>accepted</code> means settlement started,
+          <code>completed</code> means funds settled, <code>rejected</code> means nothing moved.
+          Poll <code>GET /v1/payments/{id}</code> or send <code>?wait_for_result=true</code>.
+        </li>
+      </ol>
+      <div class="guide-grid">
+        <div>
+          <h4>Statuses</h4>
+          <ul>
+            <li><span class="badge pending">pending</span> RTR PDNG — still processing</li>
+            <li><span class="badge accepted">accepted</span> RTR ACSP — accepted for settlement</li>
+            <li><span class="badge completed">completed</span> RTR ACSC — settled</li>
+            <li><span class="badge rejected">rejected</span> RTR RJCT — rejected</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Identifiers we keep for you</h4>
+          <ul>
+            <li><code>id</code> — Maple Pay payment id</li>
+            <li><code>reference</code> — your customer/invoice reference</li>
+            <li><code>tracking_number</code> — UETR</li>
+            <li><code>rail_reference</code> — RTR clearing system reference</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    Sandbox contract from the Maple Pay RTR data dictionary. Validate against Payments Canada MyStandards before production.
+  </footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>
