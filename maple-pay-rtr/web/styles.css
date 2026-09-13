@@ -23,7 +23,9 @@ html, body {
     radial-gradient(circle at top right, rgba(200, 16, 46, 0.18), transparent 32%),
     var(--bg);
   color: var(--text);
-  font-family: "Source Sans 3", sans-serif;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+  word-spacing: 0.02em;
 }
 
 code, pre, .json {
@@ -69,6 +71,11 @@ main { padding: 1.5rem 6vw 4rem; }
 .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; color: var(--red-soft); font-size: 0.78rem; }
 .hero h2 { margin: 0.2rem 0 0.7rem; font-size: 2rem; line-height: 1.2; }
 .lede, .meaning, .hint, footer { color: var(--muted); }
+#ops-line {
+  white-space: pre-wrap;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+}
 
 .grid {
   display: grid;
@@ -103,7 +110,7 @@ label, legend {
   font-size: 0.92rem;
 }
 
-input, select, button, pre {
+input, select, pre {
   width: 100%;
 }
 
@@ -127,7 +134,9 @@ fieldset {
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 
 .actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+.actions button { flex: 1; min-width: 8rem; }
 .actions.compact { margin: 0; }
+.actions.compact button { flex: 0 0 auto; }
 .hidden { display: none; }
 
 button {
